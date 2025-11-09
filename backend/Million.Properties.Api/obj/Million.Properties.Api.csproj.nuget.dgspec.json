@@ -71,10 +71,6 @@
               "target": "Package",
               "version": "[3.5.0, )"
             },
-            "MongoDB.Driver.GridFS": {
-              "target": "Package",
-              "version": "[2.30.0, )"
-            },
             "Serilog.AspNetCore": {
               "target": "Package",
               "version": "[9.0.0, )"
@@ -84,6 +80,10 @@
               "version": "[6.1.1, )"
             },
             "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[9.0.6, )"
+            },
+            "Swashbuckle.AspNetCore.Newtonsoft": {
               "target": "Package",
               "version": "[9.0.6, )"
             }

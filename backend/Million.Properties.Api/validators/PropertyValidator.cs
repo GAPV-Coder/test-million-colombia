@@ -8,10 +8,9 @@ namespace Million.Properties.Api.Validators
         public PropertyValidator()
         {
             RuleFor(x => x.IdOwner).NotEmpty();
-            RuleFor(x => x.Nombre).NotEmpty().MaximumLength(200);
-            RuleFor(x => x.Direccion).NotEmpty().MaximumLength(300);
-            RuleFor(x => x.Precio).GreaterThan(0);
-            RuleFor(x => x.Imagen).NotEmpty();
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+            RuleFor(x => x.Address).NotEmpty().MaximumLength(300);
+            RuleFor(x => x.Price).GreaterThan(0);
         }
     }
 }
