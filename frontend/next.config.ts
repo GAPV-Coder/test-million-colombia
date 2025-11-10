@@ -1,7 +1,27 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  /* config options here */
+const nextConfig = {
+  reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+      },
+      {
+        protocol: 'https',
+        hostname: 'randomuser.me',
+      },
+      {
+        protocol: 'https',
+        hostname: 'localhost',
+        port: '5001',
+      },
+    ],
+  },
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
