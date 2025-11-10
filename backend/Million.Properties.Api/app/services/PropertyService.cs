@@ -10,15 +10,18 @@ namespace Million.Properties.Api.Application.Services
     {
         private readonly IPropertyRepository _propertyRepo;
         private readonly IOwnerRepository _ownerRepo;
+        private readonly IPropertyImageRepository _imageRepo;
         private readonly IMapper _mapper;
 
         public PropertyService(
             IPropertyRepository propertyRepo,
             IOwnerRepository ownerRepo,
+            IPropertyImageRepository imageRepo,
             IMapper mapper)
         {
             _propertyRepo = propertyRepo;
             _ownerRepo = ownerRepo;
+            _imageRepo = imageRepo;
             _mapper = mapper;
         }
 
@@ -34,6 +37,16 @@ namespace Million.Properties.Api.Application.Services
         {
             var (properties, total) = await _propertyRepo.GetAllAsync(name, address, minPrice, maxPrice, page, pageSize, ct);
             var result = _mapper.Map<List<PropertyDto>>(properties);
+
+            // Agregar imágenes a cada propiedad
+            foreach (var propertyDto in result)
+            {
+                if (propertyDto.IdProperty != null)
+                {
+                    var images = await _imageRepo.GetByPropertyIdAsync(propertyDto.IdProperty, ct);
+                    propertyDto.ImageUrl = images.FirstOrDefault()?.File;
+                }
+            }
 
             return new PagedResponseDto<PropertyDto>
             {
@@ -53,6 +66,16 @@ namespace Million.Properties.Api.Application.Services
             var (properties, total) = await _propertyRepo.GetAllAsync(null, null, null, null, page, pageSize, ct);
             var result = _mapper.Map<List<PropertyDto>>(properties);
 
+            // Agregar imágenes a cada propiedad
+            foreach (var propertyDto in result)
+            {
+                if (propertyDto.IdProperty != null)
+                {
+                    var images = await _imageRepo.GetByPropertyIdAsync(propertyDto.IdProperty, ct);
+                    propertyDto.ImageUrl = images.FirstOrDefault()?.File;
+                }
+            }
+
             return new PagedResponseDto<PropertyDto>
             {
                 Items = result,
@@ -66,7 +89,14 @@ namespace Million.Properties.Api.Application.Services
         public async Task<PropertyDto?> GetByIdAsync(string id, CancellationToken ct = default)
         {
             var property = await _propertyRepo.GetByIdAsync(id, ct);
-            return property == null ? null : _mapper.Map<PropertyDto>(property);
+            if (property == null) return null;
+            var result = _mapper.Map<PropertyDto>(property);
+
+            // Agregar imagen
+            var images = await _imageRepo.GetByPropertyIdAsync(id, ct);
+            result.ImageUrl = images.FirstOrDefault()?.File;
+
+            return result;
         }
 
         // CREATE (solo autenticado Owner)
@@ -79,7 +109,13 @@ namespace Million.Properties.Api.Application.Services
             var property = _mapper.Map<Property>(dto);
             await _propertyRepo.CreateAsync(property, ct);
 
-            return _mapper.Map<PropertyDto>(property);
+            var result = _mapper.Map<PropertyDto>(property);
+
+            // Agregar imagen si existe
+            var images = await _imageRepo.GetByPropertyIdAsync(property.IdProperty!, ct);
+            result.ImageUrl = images.FirstOrDefault()?.File;
+
+            return result;
         }
 
         // UPDATE (solo si pertenece al Owner)

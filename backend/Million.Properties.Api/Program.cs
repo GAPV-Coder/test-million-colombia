@@ -29,6 +29,21 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
+// Configuración de CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins(
+                "http://localhost:3000",  // Next.js dev server
+                "https://localhost:3000"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
 // Config
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
             builder.Services.Configure<MongoSettings>(options =>
@@ -166,7 +181,8 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseSerilogRequestLogging();
-app.UseHttpsRedirection();
+app.UseCors("AllowFrontend");
+//app.UseHttpsRedirection(); 
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

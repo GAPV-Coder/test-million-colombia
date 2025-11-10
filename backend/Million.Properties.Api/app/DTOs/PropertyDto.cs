@@ -10,5 +10,6 @@ namespace Million.Properties.Api.Application.DTOs
         public int Year { get; set; }
         public string Description { get; set; } = default!;
         public string IdOwner { get; set; } = default!;
+        public string? ImageUrl { get; set; }
     }
 }

@@ -7,6 +7,7 @@ export interface PropertyDto {
     year: number;
     description: string;
     idOwner: string;
+    imageUrl?: string;
 }
 
 export interface PropertyImageDto {

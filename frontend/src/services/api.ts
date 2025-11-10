@@ -1,16 +1,25 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { API_BASE_URL } from '@/config/constants';
+import https from 'node:https';
 
 class ApiService {
     private instance: AxiosInstance;
 
     constructor() {
+        // Configurar agente HTTPS que ignore certificados solo en desarrollo
+        const httpsAgent =
+            process.env.NODE_ENV === 'development'
+                ? new https.Agent({ rejectUnauthorized: false })
+                : undefined
+
         this.instance = axios.create({
             baseURL: API_BASE_URL,
             timeout: 30000,
             headers: {
                 'Content-Type': 'application/json',
             },
+            httpsAgent,
+            withCredentials: false,
         });
 
         this.setupInterceptors();

@@ -2,8 +2,6 @@ import {
     useQuery,
     useMutation,
     useQueryClient,
-    UseQueryResult,
-    UseMutationResult,
 } from '@tanstack/react-query';
 import { propertiesApi } from '@/services/properties.api';
 import { QUERY_KEYS, DEFAULT_PAGE_SIZE } from '@/config/constants';
