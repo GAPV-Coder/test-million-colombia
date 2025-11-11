@@ -8,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Million.Properties.Api.Tests
-build_property.ProjectDir = d:\Desarrollo\Desarrollo_de_Software\Pruebas-Tecnicas\2025\million-colombia\million-propierties\backend\Million.Properties.Api.Tests\
+build_property.ProjectDir = D:\Desarrollo\Desarrollo_de_Software\Pruebas-Tecnicas\2025\million-colombia\million-propierties\backend\Million.Properties.Api.Tests\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
