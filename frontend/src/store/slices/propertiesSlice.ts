@@ -7,9 +7,30 @@ interface PropertiesState {
     viewMode: 'grid' | 'list';
 }
 
+// Cargar favoritos desde localStorage
+const loadFavoritesFromStorage = (): string[] => {
+    if (typeof window === 'undefined') return []
+    try {
+        const stored = localStorage.getItem('favorites')
+        return stored ? JSON.parse(stored) : []
+    } catch {
+        return []
+    }
+}
+
+// Guardar favoritos en localStorage
+const saveFavoritesToStorage = (favoriteIds: string[]) => {
+    if (typeof window === 'undefined') return
+    try {
+        localStorage.setItem('favorites', JSON.stringify(favoriteIds))
+    } catch (error) {
+        console.error('Error saving favorites:', error)
+    }
+}
+
 const initialState: PropertiesState = {
     selectedProperty: null,
-    favoriteIds: [],
+    favoriteIds: loadFavoritesFromStorage(),
     viewMode: 'grid',
 };
 
@@ -29,15 +50,15 @@ const propertiesSlice = createSlice({
             } else {
                 state.favoriteIds.push(id);
             }
+
+            saveFavoritesToStorage(state.favoriteIds);
         },
         setViewMode: (state, action: PayloadAction<'grid' | 'list'>) => {
             state.viewMode = action.payload;
         },
         clearFavorites: (state) => {
             state.favoriteIds = [];
-        },
-        loadFavoritesFromStorage: (state, action: PayloadAction<string[]>) => {
-            state.favoriteIds = action.payload;
+            saveFavoritesToStorage([]);
         },
     },
 });
@@ -47,7 +68,6 @@ export const {
     toggleFavorite,
     setViewMode,
     clearFavorites,
-    loadFavoritesFromStorage,
 } = propertiesSlice.actions;
 
 export default propertiesSlice.reducer;

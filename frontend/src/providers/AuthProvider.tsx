@@ -2,7 +2,7 @@
 
 import { ReactNode, useEffect } from 'react';
 import { useAppDispatch } from '@/store/hooks';
-import { setUser, clearUser } from '@/store/slices/userSlice';
+import { restoreSession } from '@/store/slices/userSlice';
 import { storage, STORAGE_KEYS } from '@/utils/localStorage';
 import { UserDto } from '@/types/auth.types';
 
@@ -15,13 +15,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     useEffect(() => {
         // Cargar el estado de autenticación desde localStorage al montar
-        const token = storage.get<string | null>(STORAGE_KEYS.AUTH_TOKEN, null);
-        const user = storage.get<UserDto | null>(STORAGE_KEYS.USER, null);
+        if (typeof window !== 'undefined') {
+            const token = localStorage.getItem('authToken')
+            const userStr = localStorage.getItem('user')
 
-        if (token && user) {
-            dispatch(setUser({ user, token }));
-        } else {
-            dispatch(clearUser());
+            if (token && userStr) {
+                try {
+                    const user = JSON.parse(userStr) as UserDto
+                    dispatch(restoreSession({ user, token }))
+                } catch (error) {
+                    console.error('Error parsing user from localStorage:', error)
+                    localStorage.removeItem('authToken')
+                    localStorage.removeItem('user')
+                }
+            }
         }
     }, [dispatch]);
 

@@ -29,7 +29,11 @@ class ApiService {
         // Request interceptor
         this.instance.interceptors.request.use(
             (config: InternalAxiosRequestConfig) => {
-                const token = this.getToken();
+                const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+                console.log('🔑 Token en localStorage:', token ? 'EXISTE' : 'NO EXISTE');
+                if (token) {
+                    console.log('🔑 Primeros 20 caracteres del token:', token.substring(0, 20));
+                }
                 if (token && config.headers) {
                     config.headers.Authorization = `Bearer ${token}`;
                 }
@@ -45,8 +49,9 @@ class ApiService {
             (response) => response,
             (error: AxiosError) => {
                 if (error.response?.status === 401) {
-                    this.clearToken();
                     if (typeof window !== 'undefined') {
+                        localStorage.removeItem('authToken');
+                        localStorage.removeItem('user');
                         window.location.href = '/login';
                     }
                 }

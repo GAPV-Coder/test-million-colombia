@@ -29,7 +29,7 @@ export default function PropertyDetailPage({ params }: PropertyDetailPageProps) 
     const favoriteIds = useAppSelector((state) => state.properties.favoriteIds)
     const isFavorite = property ? favoriteIds.includes(property.idProperty || '') : false
 
-    // Comprobar si el usuario actual es el propietario
+    // Solo verificar si ES EL PROPIETARIO, NO redirigir ni mostrar error
     const isOwner = isAuthenticated && user && property && user.id === property.idOwner
 
     const handleToggleFavorite = () => {
@@ -55,6 +55,7 @@ export default function PropertyDetailPage({ params }: PropertyDetailPageProps) 
         }
     }
 
+    // Mostrar skeleton sin redirección
     if (isLoading) {
         return (
             <Container className="py-8">
@@ -75,6 +76,7 @@ export default function PropertyDetailPage({ params }: PropertyDetailPageProps) 
         )
     }
 
+    // ⭐ ERROR STATE - Mostrar mensaje amigable sin redirección
     if (isError || !property) {
         return (
             <Container className="py-12">
@@ -98,7 +100,7 @@ export default function PropertyDetailPage({ params }: PropertyDetailPageProps) 
     return (
         <Container className="py-8">
             <div className="space-y-8">
-                {/* Back Button & Edit Button */}
+                {/* Back Button & Edit Button (solo si es el propietario) */}
                 <div className="flex items-center justify-between">
                     <Link href="/properties">
                         <Button variant="ghost" className="gap-2">
@@ -107,6 +109,7 @@ export default function PropertyDetailPage({ params }: PropertyDetailPageProps) 
                         </Button>
                     </Link>
 
+                    {/* ⭐ BOTÓN DE EDITAR: Solo visible si eres el propietario */}
                     {isOwner && (
                         <Link href={`/properties/edit/${id}`}>
                             <Button variant="outline" className="gap-2">
@@ -132,6 +135,7 @@ export default function PropertyDetailPage({ params }: PropertyDetailPageProps) 
                         {isNew && (
                             <Badge className="bg-green-500 hover:bg-green-600">Nuevo</Badge>
                         )}
+                        {/* ⭐ Badge "Tu Propiedad": Solo si eres el propietario */}
                         {isOwner && (
                             <Badge variant="secondary" className="gap-1">
                                 <User className="h-3 w-3" />
@@ -194,6 +198,7 @@ export default function PropertyDetailPage({ params }: PropertyDetailPageProps) 
 
                         {/* Sales History */}
                         <div className="space-y-4">
+                            {/* ⭐ Botón "Agregar Transacción": Solo si eres el propietario */}
                             {isOwner && (
                                 <div className="flex justify-end">
                                     <CreatePropertyTraceDialog propertyId={property.idProperty!} />

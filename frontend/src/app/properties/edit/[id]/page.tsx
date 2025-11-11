@@ -59,15 +59,19 @@ export default function EditPropertyPage({ params }: EditPropertyPageProps) {
     })
 
     useEffect(() => {
+        // 1. Si no está autenticado, redirigir a login
         if (!isAuthenticated) {
             router.push('/login')
             return
         }
 
+        // 2. Si la propiedad carga y NO eres el propietario, redirigir SIN toast
         if (property && user?.id && property.idOwner !== user.id) {
-            router.push('/properties')
+            router.push(`/properties/${id}`) // Redirigir al detalle, no al listado
+            return
         }
 
+        // 3. Si todo está bien, cargar los datos en el formulario
         if (property) {
             reset({
                 name: property.name,
@@ -78,7 +82,7 @@ export default function EditPropertyPage({ params }: EditPropertyPageProps) {
                 description: property.description,
             })
         }
-    }, [property, user, isAuthenticated, router, reset])
+    }, [property, user, isAuthenticated, router, reset, id])
 
     const onSubmit = (data: UpdatePropertyForm) => {
         setError(null)

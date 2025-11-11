@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
-import { ArrowLeft, Loader2, Home as HomeIcon, Upload } from 'lucide-react'
+import { ArrowLeft, Loader2, Home as HomeIcon } from 'lucide-react'
+import { toast } from 'sonner' // ⭐ IMPORTAR TOAST
 import { Container } from '@/components/layout/Container'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -14,7 +15,6 @@ import { useCreateProperty, useUploadPropertyImage } from '@/hooks/useProperties
 import { useAppSelector } from '@/store/hooks'
 import { createPropertySchema } from '@/utils/validators'
 import { PropertyDto } from '@/types/property.types'
-import { getErrorMessage } from '@/utils/errorHandler'
 
 type CreatePropertyForm = Omit<PropertyDto, 'idProperty'>
 
@@ -23,7 +23,6 @@ export default function CreatePropertyPage() {
     const { user, isAuthenticated } = useAppSelector((state) => state.user)
     const { mutate: createProperty, isPending } = useCreateProperty()
     const { mutate: uploadImage, isPending: isUploadingImage } = useUploadPropertyImage()
-    const [error, setError] = useState<string | null>(null)
     const [selectedImage, setSelectedImage] = useState<File | null>(null)
     const [imagePreview, setImagePreview] = useState<string | null>(null)
 
@@ -60,30 +59,35 @@ export default function CreatePropertyPage() {
     }
 
     const onSubmit = (data: CreatePropertyForm) => {
-        setError(null)
-
         createProperty(data, {
             onSuccess: (createdProperty) => {
+                toast.success('¡Propiedad creada exitosamente!', {
+                    description: `${createdProperty.name} ha sido publicada.`
+                })
+
                 // Si hay imagen, subirla
                 if (selectedImage && createdProperty.idProperty) {
                     uploadImage(
                         { propertyId: createdProperty.idProperty, file: selectedImage },
                         {
                             onSuccess: () => {
-                                router.push(`/properties/${createdProperty.idProperty}`)
+                                toast.success('Imagen subida correctamente')
+                                setTimeout(() => router.push('/'), 1000)
                             },
-                            onError: (error) => {
-                                // Propiedad creada pero imagen no subida
-                                router.push(`/properties/${createdProperty.idProperty}`)
+                            onError: () => {
+                                toast.warning('Propiedad creada pero hubo un error al subir la imagen')
+                                setTimeout(() => router.push('/'), 1000)
                             },
                         }
                     )
                 } else {
-                    router.push(`/properties/${createdProperty.idProperty}`)
+                    setTimeout(() => router.push('/'), 1000)
                 }
             },
             onError: (error: any) => {
-                setError(getErrorMessage(error))
+                toast.error('Error al crear la propiedad', {
+                    description: error.response?.data?.message || error.message
+                })
             },
         })
     }
@@ -119,12 +123,6 @@ export default function CreatePropertyPage() {
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                            {error && (
-                                <div className="p-4 rounded-md bg-destructive/10 text-destructive text-sm">
-                                    {error}
-                                </div>
-                            )}
-
                             {/* Imagen */}
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Imagen Principal</label>

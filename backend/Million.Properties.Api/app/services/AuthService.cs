@@ -15,12 +15,14 @@ namespace Million.Properties.Api.Application.Services
     public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepo;
+        private readonly IOwnerRepository _ownerRepo;
         private readonly IMapper _mapper;
         private readonly JwtSettings _jwtSettings;
 
-        public AuthService(IUserRepository userRepo, IMapper mapper, IOptions<JwtSettings> jwtOptions)
+        public AuthService(IUserRepository userRepo, IOwnerRepository ownerRepo, IMapper mapper, IOptions<JwtSettings> jwtOptions)
         {
             _userRepo = userRepo;
+            _ownerRepo = ownerRepo;
             _mapper = mapper;
             _jwtSettings = jwtOptions.Value;
         }
@@ -41,6 +43,20 @@ namespace Million.Properties.Api.Application.Services
             };
 
             await _userRepo.CreateAsync(user, ct);
+
+            if (dto.Role == "Owner" && user.Id != null)
+            {
+                var owner = new Owner
+                    {
+                        IdOwner = user.Id, 
+                        Name = dto.FullName,
+                        Address = "Sin dirección", 
+                        Photo = dto.Photo,
+                        Birthday = DateTime.UtcNow.AddYears(-30) 
+                };
+        
+        await _ownerRepo.CreateAsync(owner, ct);
+    }
 
             var token = GenerateJwtToken(user);
             return new AuthResponseDto

@@ -13,8 +13,9 @@ export class AuthApiService {
             data
         );
 
-        if (response.data.token) {
-            apiService.setToken(response.data.token);
+        if (response.data.token && typeof window !== 'undefined') {
+            localStorage.setItem('authToken', response.data.token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
         }
 
         return response.data;
@@ -26,8 +27,9 @@ export class AuthApiService {
             data
         );
 
-        if (response.data.token) {
-            apiService.setToken(response.data.token);
+        if (response.data.token && typeof window !== 'undefined') {
+            localStorage.setItem('authToken', response.data.token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
         }
 
         return response.data;
@@ -36,6 +38,7 @@ export class AuthApiService {
     logout(): void {
         if (typeof window !== 'undefined') {
             localStorage.removeItem('authToken');
+            localStorage.removeItem('user');
         }
     }
 

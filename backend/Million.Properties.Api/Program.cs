@@ -20,6 +20,8 @@ using DotNetEnv;
 Env.Load(); // cargar variables del archivo .env
 
 var builder = WebApplication.CreateBuilder(args);
+Console.WriteLine("🔑 JWT Secret actual: " + builder.Configuration["JwtSettings:Secret"]);
+
 
 // Logging
 Log.Logger = new LoggerConfiguration()
@@ -178,6 +180,13 @@ using (var scope = app.Services.CreateScope())
 {
     var seeder = new DataSeeder(scope.ServiceProvider.GetRequiredService<MongoDbContext>());
     await seeder.SeedAsync();
+}
+
+// Migración de Users a Owners
+using (var scope = app.Services.CreateScope())
+{
+    var migration = new OwnerMigration(scope.ServiceProvider.GetRequiredService<MongoDbContext>());
+    await migration.MigrateUsersToOwnersAsync();
 }
 
 app.UseSerilogRequestLogging();

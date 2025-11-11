@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Plus, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import {
     Dialog,
     DialogContent,
@@ -16,7 +17,6 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useCreatePropertyTrace } from '@/hooks/usePropertyTrace'
-import { getErrorMessage } from '@/utils/errorHandler'
 
 const createTraceSchema = z.object({
     name: z.string().min(1, 'El nombre es requerido'),
@@ -33,7 +33,6 @@ interface CreatePropertyTraceDialogProps {
 
 export function CreatePropertyTraceDialog({ propertyId }: CreatePropertyTraceDialogProps) {
     const [open, setOpen] = useState(false)
-    const [error, setError] = useState<string | null>(null)
     const { mutate: createTrace, isPending } = useCreatePropertyTrace()
 
     const {
@@ -46,8 +45,6 @@ export function CreatePropertyTraceDialog({ propertyId }: CreatePropertyTraceDia
     })
 
     const onSubmit = (data: CreateTraceForm) => {
-        setError(null)
-
         createTrace(
             {
                 idProperty: propertyId,
@@ -58,11 +55,16 @@ export function CreatePropertyTraceDialog({ propertyId }: CreatePropertyTraceDia
             },
             {
                 onSuccess: () => {
+                    toast.success('Transacción agregada exitosamente', {
+                        description: 'El historial de ventas ha sido actualizado.'
+                    })
                     setOpen(false)
                     reset()
                 },
                 onError: (error: any) => {
-                    setError(getErrorMessage(error))
+                    toast.error('Error al agregar la transacción', {
+                        description: error.response?.data?.message || error.message
+                    })
                 },
             }
         )
@@ -85,12 +87,6 @@ export function CreatePropertyTraceDialog({ propertyId }: CreatePropertyTraceDia
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    {error && (
-                        <div className="p-3 rounded-md bg-destructive/10 text-destructive text-sm">
-                            {error}
-                        </div>
-                    )}
-
                     <div className="space-y-2">
                         <label htmlFor="name" className="text-sm font-medium">
                             Nombre / Descripción *
