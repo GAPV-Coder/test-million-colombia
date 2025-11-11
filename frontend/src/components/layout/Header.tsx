@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Home, Search, Heart, User, Menu, X } from 'lucide-react'
+import { Home, Heart, User, Menu, X, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
 import { useAppSelector } from '@/store/hooks'
@@ -31,12 +31,15 @@ export function Header() {
                     >
                         Explorar Propiedades
                     </Link>
-                    <Link
-                        href="/properties?featured=true"
-                        className="text-sm font-medium transition-colors hover:text-primary"
-                    >
-                        Destacadas
-                    </Link>
+                    {isAuthenticated && (
+                        <Link
+                            href="/properties/create"
+                            className="text-sm font-medium transition-colors hover:text-primary flex items-center gap-1"
+                        >
+                            <Plus className="h-4 w-4" />
+                            Publicar Propiedad
+                        </Link>
+                    )}
                 </nav>
 
                 {/* Desktop Actions */}
@@ -60,9 +63,14 @@ export function Header() {
                             </Button>
                         </Link>
                     ) : (
-                        <Link href="/login">
-                            <Button size="sm">Iniciar Sesión</Button>
-                        </Link>
+                        <div className="flex items-center gap-2">
+                            <Link href="/login">
+                                <Button variant="ghost" size="sm">Iniciar Sesión</Button>
+                            </Link>
+                            <Link href="/register">
+                                <Button size="sm">Registrarse</Button>
+                            </Link>
+                        </div>
                     )}
                 </div>
 
@@ -86,6 +94,18 @@ export function Header() {
                         >
                             Explorar Propiedades
                         </Link>
+
+                        {isAuthenticated && (
+                            <Link
+                                href="/properties/create"
+                                className="text-sm font-medium py-2 transition-colors hover:text-primary flex items-center gap-2"
+                                onClick={() => setMobileMenuOpen(false)}
+                            >
+                                <Plus className="h-4 w-4" />
+                                Publicar Propiedad
+                            </Link>
+                        )}
+
                         <Link
                             href="/favorites"
                             className="text-sm font-medium py-2 transition-colors hover:text-primary flex items-center gap-2"
@@ -94,6 +114,7 @@ export function Header() {
                             <Heart className="h-4 w-4" />
                             Favoritos {favoriteCount > 0 && `(${favoriteCount})`}
                         </Link>
+
                         {isAuthenticated ? (
                             <Link
                                 href="/profile"
@@ -103,9 +124,14 @@ export function Header() {
                                 Mi Perfil
                             </Link>
                         ) : (
-                            <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                                <Button className="w-full">Iniciar Sesión</Button>
-                            </Link>
+                            <div className="flex flex-col gap-2 pt-2">
+                                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                                    <Button variant="outline" className="w-full">Iniciar Sesión</Button>
+                                </Link>
+                                <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
+                                    <Button className="w-full">Registrarse</Button>
+                                </Link>
+                            </div>
                         )}
                     </nav>
                 </div>

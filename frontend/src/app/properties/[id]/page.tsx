@@ -3,12 +3,14 @@
 import { use } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { MapPin, Calendar, Home, ArrowLeft, Heart, Share2 } from 'lucide-react'
+import { MapPin, Calendar, Home, ArrowLeft, Heart, Share2, Edit, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Container } from '@/components/layout/Container'
+import { PropertySalesHistory } from '@/features/properties/PropertySalesHistory'
+import { CreatePropertyTraceDialog } from '@/components/properties/CreatePropertyTraceDialog'
 import { usePropertyDetail } from '@/hooks/useProperties'
 import { formatCurrency } from '@/utils/formatCurrency'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
@@ -23,10 +25,12 @@ export default function PropertyDetailPage({ params }: PropertyDetailPageProps) 
     const { id } = use(params)
     const dispatch = useAppDispatch()
     const { data: property, isLoading, isError } = usePropertyDetail(id)
+    const { user, isAuthenticated } = useAppSelector((state) => state.user)
     const favoriteIds = useAppSelector((state) => state.properties.favoriteIds)
     const isFavorite = property ? favoriteIds.includes(property.idProperty || '') : false
-    const imageUrl = property?.imageUrl || `https://picsum.photos/1200/800?random=${property?.idProperty}`
 
+    // Comprobar si el usuario actual es el propietario
+    const isOwner = isAuthenticated && user && property && user.id === property.idOwner
 
     const handleToggleFavorite = () => {
         if (property?.idProperty) {
@@ -89,17 +93,29 @@ export default function PropertyDetailPage({ params }: PropertyDetailPageProps) 
 
     const currentYear = new Date().getFullYear()
     const isNew = property.year >= currentYear - 2
+    const imageUrl = property.imageUrl || `https://picsum.photos/1200/800?random=${property.idProperty}`
 
     return (
         <Container className="py-8">
             <div className="space-y-8">
-                {/* Back Button */}
-                <Link href="/properties">
-                    <Button variant="ghost" className="gap-2">
-                        <ArrowLeft className="h-4 w-4" />
-                        Volver a propiedades
-                    </Button>
-                </Link>
+                {/* Back Button & Edit Button */}
+                <div className="flex items-center justify-between">
+                    <Link href="/properties">
+                        <Button variant="ghost" className="gap-2">
+                            <ArrowLeft className="h-4 w-4" />
+                            Volver a propiedades
+                        </Button>
+                    </Link>
+
+                    {isOwner && (
+                        <Link href={`/properties/edit/${id}`}>
+                            <Button variant="outline" className="gap-2">
+                                <Edit className="h-4 w-4" />
+                                Editar Propiedad
+                            </Button>
+                        </Link>
+                    )}
+                </div>
 
                 {/* Image Gallery */}
                 <div className="relative aspect-video w-full overflow-hidden rounded-xl">
@@ -116,13 +132,19 @@ export default function PropertyDetailPage({ params }: PropertyDetailPageProps) 
                         {isNew && (
                             <Badge className="bg-green-500 hover:bg-green-600">Nuevo</Badge>
                         )}
+                        {isOwner && (
+                            <Badge variant="secondary" className="gap-1">
+                                <User className="h-3 w-3" />
+                                Tu Propiedad
+                            </Badge>
+                        )}
                     </div>
                 </div>
 
                 {/* Content Grid */}
-                <div className="grid md:grid-cols-3 gap-8">
+                <div className="grid lg:grid-cols-3 gap-8">
                     {/* Main Content */}
-                    <div className="md:col-span-2 space-y-6">
+                    <div className="lg:col-span-2 space-y-6">
                         {/* Title & Price */}
                         <div>
                             <h1 className="text-3xl font-bold mb-2">{property.name}</h1>
@@ -130,7 +152,7 @@ export default function PropertyDetailPage({ params }: PropertyDetailPageProps) 
                                 <MapPin className="h-5 w-5" />
                                 <span>{property.address}</span>
                             </div>
-                            <p className="text-3xl font-bold text-primary">
+                            <p className="text-4xl font-bold text-primary">
                                 {formatCurrency(property.price)}
                             </p>
                         </div>
@@ -169,6 +191,16 @@ export default function PropertyDetailPage({ params }: PropertyDetailPageProps) 
                                 </p>
                             </CardContent>
                         </Card>
+
+                        {/* Sales History */}
+                        <div className="space-y-4">
+                            {isOwner && (
+                                <div className="flex justify-end">
+                                    <CreatePropertyTraceDialog propertyId={property.idProperty!} />
+                                </div>
+                            )}
+                            <PropertySalesHistory propertyId={property.idProperty!} />
+                        </div>
                     </div>
 
                     {/* Sidebar */}
@@ -214,6 +246,32 @@ export default function PropertyDetailPage({ params }: PropertyDetailPageProps) 
                                 <div className="space-y-2">
                                     <p className="font-medium">Teléfono:</p>
                                     <p className="text-muted-foreground">+57 300 123 4567</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <p className="font-medium">Horario:</p>
+                                    <p className="text-muted-foreground">Lun - Vie: 9:00 AM - 6:00 PM</p>
+                                    <p className="text-muted-foreground">Sáb: 10:00 AM - 2:00 PM</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Property Stats */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Estadísticas</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3 text-sm">
+                                <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Antigüedad</span>
+                                    <span className="font-medium">{currentYear - property.year} años</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Estado</span>
+                                    <span className="font-medium">{isNew ? 'Nueva' : 'Usada'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Código</span>
+                                    <span className="font-medium font-mono text-xs">{property.codeInternal}</span>
                                 </div>
                             </CardContent>
                         </Card>
