@@ -149,7 +149,7 @@ POST	/api/Auth/login	       Iniciarsesión	      Público
 Este proyecto está bajo la Licencia MIT - ver el archivo LICENSE para detalles.
 
 ## 👥 Equipo
-- Gustavo Adolfo Pereira Villa - Desarrollo Full Stack - GitHub: [https://github.com/GAPV-Coder]
+- Gustavo Adolfo Pereira Villa - Desarrollador Full Stack - GitHub: [https://github.com/GAPV-Coder]
 
 ## 🙏 Agradecimientos
 - Next.js - Framework de React
