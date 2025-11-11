@@ -1,7 +1,4 @@
 
-# README.md para Frontend
-
-```markdown
 # MillionHomes - Frontend
 
 Aplicación web moderna para la gestión y búsqueda de propiedades inmobiliarias desarrollada con Next.js 16 y React.
